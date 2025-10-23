@@ -1,4 +1,4 @@
-# Real Estate Market Dynamics: Predicting Property Prices and Analyzing Market Trends
+# Predicting Property Prices and Analyzing Market Trends
 
 ## Project Overview
 Accurately estimating property prices is a critical challenge in the real estate market. Prices vary across localities and are influenced by multiple factors such as property type, residential style, carpet area, property tax rate, and year of sale.  
