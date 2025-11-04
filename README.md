@@ -1,4 +1,4 @@
-# 🏠 Real Estate Market Dynamics: Predicting Property Prices and Analyzing Market Trends
+# Real Estate Market Dynamics: Predicting Property Prices and Analyzing Market Trends
 
 ## **Project Overview**
 This project aims to analyze real estate market behavior and predict property sale prices using machine learning and deep learning models.  
