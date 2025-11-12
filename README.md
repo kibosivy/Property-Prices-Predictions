@@ -1,203 +1,121 @@
-# Real Estate Market Dynamics: Predicting Property Prices and Analyzing Market Trends
+# Predicting House Prices (Kaggle: House Prices – Advanced Regression Techniques)
 
-## **Project Overview**
-This project aims to analyze real estate market behavior and predict property sale prices using machine learning and deep learning models.  
-By leveraging transaction data from **2009–2022**, the project seeks to identify key factors that drive price variation across localities and property types.  
-The outcome includes both predictive models and visual insights to assist buyers, sellers, and investors in making data-driven decisions.
+## Project Overview
+This project tackles the task of predicting residential property sale prices using the Kaggle competition dataset **“House Prices: Advanced Regression Techniques.”**  
+The goal is to build a robust regression pipeline using advanced feature engineering, dimensionality reduction, and machine learning algorithms to generate accurate predictions and gain insights into the factors influencing price variation.
 
----
-
-## **Dataset**
-**Source:** [OpenDataBay - Real Estate Transactions](https://www.opendatabay.com/data/financial/e67485f2-6d3c-4a3b-93a6-4b76ca07e5fb?utm)
-
-**Features Include:**
-- Date, Year, Locality, Property Type, Residential Indicator  
-- Estimated Value, Sale Price, Carpet Area, Property Tax Rate  
-- Number of Rooms, Bathrooms, Face Orientation  
+ **Competition Link:** [Kaggle - House Prices: Advanced Regression Techniques](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques/data)
 
 ---
 
-## **Problem Statement**
-Accurately estimating property prices is one of the most critical challenges in the real estate market.  
-Prices vary significantly across localities and are influenced by multiple factors such as property type, area, and tax rate.  
-Despite data availability, many valuations rely on manual estimates, leading to pricing errors and missed opportunities.  
+## 🧾 Dataset
+**Source:** Kaggle  
+**Training set:** 1,460 observations  
+**Test set:** 1,459 observations  
+**Features:** 79 explanatory variables describing physical, temporal, and qualitative aspects of homes in Ames, Iowa.  
+**Target variable:** `SalePrice`
 
-This project uses **machine learning** and **deep learning** to build predictive models that estimate sale prices and uncover market trends across regions and years.
-
----
-
-## **Project Objectives**
-- Predict property sale prices using regression techniques.  
-- Identify market trends and key factors influencing property values.  
-- Compare traditional ML algorithms with a Deep Neural Network (DNN).  
-- Visualize insights via charts and dashboards for decision-making.
+**Files included:**
+- `train.csv`
+- `test.csv`
+- `data_description.txt`
+- `sample_submission.csv`
 
 ---
 
-## **Methodology**
-
-This project follows a structured seven-phase workflow combining data preprocessing, exploratory analysis, feature engineering, and predictive modeling.
-
----
-
-### **1️⃣ Data Understanding**
-
-The first step is to explore and familiarize ourselves with the dataset:
-- Identify feature types (numeric, categorical, date).
-- Check for missing values, inconsistencies, and outliers.
-- Understand data ranges and patterns in pricing and property attributes.
-
-**Goal:** Build a foundational understanding of what the data represents and identify necessary cleaning or transformations.
+## Problem Statement
+Estimating the sale price of a house is a typical regression problem with real-world applications in real estate analytics, mortgage risk assessment, and investment decision-making.  
+Given the rich set of property attributes, the challenge is to develop a predictive model that generalises well and uncovers the underlying drivers of price variability.
 
 ---
 
-### **2️⃣ Data Cleaning & Preprocessing**
-
-Data cleaning ensures consistency and reliability.
-
-**Steps:**
-- **Handle Missing Values:**  
-  - Fill categorical features (e.g., *Locality*) with “Unknown.”  
-  - Impute numerical columns (e.g., *Estimated Value*, *Carpet Area*) with the **median per category** (like Property Type or Locality).  
-
-- **Outlier Handling (Winsorization):**  
-  - Cap extreme values in *Sale Price*, *Estimated Value*, and *Carpet Area* based on IQR thresholds to reduce skew and distortion.  
-
-- **Feature Conversion:**  
-  - Convert `Date` to datetime.  
-  - Derive new time-based features — `Year`, `Month`, `Quarter`.
-
-- **Encoding & Normalization:**  
-  - Encode categorical variables.  
-  - Normalize numeric columns for model stability.
-
-**Goal:** Produce a clean, ready-to-model dataset.
+## Project Objectives
+- Clean and preprocess the dataset, handling missing values and encoding categorical features.  
+- Apply **Principal Component Analysis (PCA)** for dimensionality reduction and to handle multicollinearity.  
+- Engineer meaningful new features that capture home characteristics.  
+- Build and compare machine learning models to predict `SalePrice`.  
+- Evaluate model performance using regression metrics and interpret key insights.  
+- Generate a final **Kaggle submission** file.
 
 ---
 
-### **3️⃣ Exploratory Data Analysis (EDA)**
+## Methodology
 
-EDA helps uncover trends and relationships among variables.
+### ** Data Understanding**
+- Explore data structure, feature types, and value distributions.  
+- Identify missing values and outliers.  
+- Summarise key statistics for both numeric and categorical variables.
 
-**Key Visualizations:**
-- Sale Price distribution (with and without log transform).  
-- Average Sale Price by Locality and Property Type.  
-- Yearly Price Trends (2009–2022).  
-- Correlation Heatmap of numeric variables.  
-- Relationship between features (e.g., rooms vs price, area vs value).  
+### ** Data Cleaning & Preprocessing**
+- **Missing values:**  
+  - Fill “None” for categorical features where missing implies absence.  
+  - Fill 0 for numeric features such as basement or garage area when missing implies none.  
+  - Median imputation for numeric columns like `LotFrontage` based on neighborhood.  
+- **Outlier handling:** Remove or cap extreme price or area outliers.  
+- **Encoding:**  
+  - Ordinal encoding for quality/condition features.  
+  - One-hot encoding for nominal features.  
+- **Feature alignment:** Ensure train and test sets have identical columns.
 
-**Goal:** Extract insights and understand data behavior before modeling.
+### ** Feature Engineering**
+- Create new aggregated or derived features such as total living space, total bathrooms, house age, renovation age, and combined quality-area metrics.  
+- Apply log transformation to skewed features (including `SalePrice`).
 
----
+### ** Dimensionality Reduction (PCA)**
+- Scale all numeric features using `StandardScaler`.  
+- Apply **PCA (n_components=0.99)** to retain 99% of total variance.  
+- Visualise explained variance ratio to understand how much information each component holds.  
+- The result produced 173 principal components, ensuring dimensionality reduction without significant information loss.
 
-### **4️⃣ Feature Engineering**
+### ** Model Building**
+Models implemented and compared include:  
+- **Linear Regression** – baseline model  
+- **Ridge & Lasso Regression** – regularised linear models  
+- **Random Forest Regressor** – tree-based ensemble  
+- **XGBoost Regressor** – gradient boosting model  
+- **Neural Network (Keras/TensorFlow)** – deep learning approach  
 
-Create meaningful and model-ready features.
-
-**Steps:**
-- Generate derived metrics (e.g., price per square meter, room-to-bathroom ratio).  
-- Apply log transformations on skewed variables.  
-- Identify and retain top features using feature importance scores.  
-
-**Goal:** Enhance the dataset’s predictive strength and interpretability.
-
----
-
-### **5️⃣ Model Building**
-
-Train multiple models and compare their performance.
-
-#### **a. Linear Regression**
-- Acts as the baseline model.  
-- Assumes a linear relationship between features and target (Sale Price).  
-- Useful for understanding directional impact of variables.
-
-#### **b. Random Forest Regressor**
-- An ensemble of decision trees that reduces overfitting.  
-- Handles non-linear relationships and feature interactions effectively.  
-- Offers built-in feature importance for interpretability.
-
-#### **c. XGBoost Regressor**
-- A powerful gradient boosting algorithm.  
-- Builds trees sequentially to minimize error efficiently.  
-- Known for superior predictive accuracy and flexibility.
-
-#### **d. Deep Neural Network (DNN) — Keras Sequential API**
-- A **Deep Learning** model using TensorFlow’s **Keras Sequential API** for regression.  
-- Selected for its simplicity and layer-by-layer design.
-
-**Network Design:**
-- Input: scaled numeric + encoded categorical variables.  
-- Hidden Layers: multiple Dense layers with **ReLU** activation.  
-- Regularization: Dropout + Batch Normalization.  
-- Output: single neuron (linear activation) for continuous prediction.
-
-**Training Setup:**
-- Optimizer: Adam  
-- Loss Function: Mean Squared Error (MSE)  
-- Metrics: Mean Absolute Error (MAE)  
-- Training Techniques: early stopping, learning rate scheduling.
-
-**Goal:** Learn complex nonlinear dependencies and benchmark deep learning performance against traditional models.
+Each model was evaluated using **RMSE**, **MAE**, and **R²** scores to determine predictive accuracy and model generalisation.
 
 ---
 
-### **6️⃣ Model Evaluation & Interpretation**
+### ** Model Evaluation & Interpretation**
+Evaluation metrics used:  
+- **RMSE (Root Mean Squared Error)** – main Kaggle competition metric  
+- **MAE (Mean Absolute Error)** – measures average prediction error  
+- **R² Score** – measures the proportion of variance explained by the model  
 
-Each model will be assessed using the following metrics:
-
-| Metric | Description |
-|---------|--------------|
-| **MAE** | Average magnitude of prediction errors |
-| **RMSE** | Penalizes large errors more heavily |
-| **R²** | Explains how much variance is captured by the model |
-
-**Interpretation Tools:**
-- Predicted vs Actual Price plots.  
-- Feature Importance visualization (for RF and XGBoost).  
-- Learning Curves (for DNN training performance).
-
-**Goal:** Evaluate and interpret which model performs best and why.
+Interpretation tools included:  
+- Predicted vs Actual plots  
+- Residual distribution analysis  
+- Feature importance interpretation (for tree-based models)  
 
 ---
 
-### **7️⃣ Reporting & Insights**
+### ** Submission & Insights**
+The final submission file contained the model’s predicted `SalePrice` values for each `Id` in the test dataset.
 
-**Deliverables:**
-- Data cleaning summary (missing values, outlier handling).  
-- EDA findings and statistical highlights.  
-- Model performance comparison table.  
-- Business insights:
-  - Factors driving higher prices.
-  - Localities with rapid appreciation.
-  - Characteristics associated with high property value.
-
-**Goal:** Provide actionable, data-driven insights for stakeholders in real estate investment and policy-making.
+**Key insights identified:**
+- Property quality (`OverallQual`) and total living area (`GrLivArea`) were the strongest predictors of sale price.  
+- Houses that were newly built or recently renovated showed higher valuations.  
+- Neighborhood, exterior material, and basement size also had notable influence.  
+- Feature reduction through PCA improved model efficiency and stability without major accuracy loss.
 
 ---
 
-## **Expected Outcome**
-- A regression-based framework for accurate price prediction.  
-- Visual and statistical evidence of market behavior.  
-- Comparative model insights showcasing where machine learning and deep learning excel.  
-- A replicable data science pipeline applicable to other market datasets.
-
----
-
-## **Technologies & Tools**
+## Technologies & Tools
 - **Languages:** Python  
-- **Libraries:** pandas, NumPy, matplotlib, seaborn, scikit-learn, XGBoost, TensorFlow (Keras)  
-- **Visualization:** Matplotlib, Seaborn, Plotly  
+- **Libraries:** pandas, NumPy, matplotlib, seaborn, scikit-learn, XGBoost, TensorFlow/Keras  
 - **Environment:** Jupyter Notebook / VS Code  
+- **Version Control:** Git & GitHub  
 
 ---
 
-## **Learning Goals**
-- Gain hands-on experience with **real-world regression modeling**.  
-- Learn **deep learning model design** using the **Keras Sequential API**.  
-- Understand the impact of **feature engineering and regularization** in predictive modeling.  
-- Strengthen **data storytelling and dashboarding** through visualization.
+## Learning Goals
+- Gain hands-on experience with **real-world regression datasets**.  
+- Understand how **feature engineering** and **dimensionality reduction** improve model performance.  
+- Compare **traditional machine learning** and **deep learning** models for predictive tasks.  
+- Strengthen **data storytelling** and **model interpretation** skills for real-world applications.  
 
----
 
-*By combining traditional ML and deep learning, this project aims to reveal how property attributes and locality characteristics shape real estate values — and how predictive analytics can guide smarter investment decisions.*
+
