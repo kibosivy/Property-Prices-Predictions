@@ -1,300 +1,192 @@
-# Predicting House Prices
+# House Price Prediction
+
+**Advanced Regression Techniques | Ridge Regression Model | SHAP Explainability | Streamlit Deployment**
+
+---
 
 ## Project Overview
-This project focuses on predicting residential property sale prices using the Kaggle competition dataset **“House Prices: Advanced Regression Techniques.”**
 
-It implements a complete end-to-end machine learning pipeline consisting of:
-* Exploratory data analysis (EDA)
-* Data cleaning and preprocessing
-* Feature engineering
-* Model development and evaluation
-* Hyperparameter tuning
-* Model explainability using XGBoost Feature Importance and SHAP
-* Deep neural network (DNN) benchmarking
-* Stacked ensemble modeling
-* Final Kaggle submission
-* **Deployment using Streamlit**
+This project tackles the classic Kaggle competition **“House Prices: Advanced Regression Techniques”**, using a complete end-to-end machine learning workflow to build a clean, interpretable, and high-performing model for predicting housing sale prices.
 
-The goal is to build a highly accurate, generalizable, and interpretable model for structured real-estate data.
-📌 **Competition Link:**
+The complete workflow includes:
+* Exploratory Data Analysis (EDA)
+* Missing value treatment and outlier handling
+* Domain-driven **feature engineering**
+* Ordinal + one-hot encoding
+* Model development and cross-validation
+* Hyperparameter tuning (**GridSearchCV** + validation curves)
+* Learning curve + error analysis
+* **SHAP explainability**
+* **Streamlit deployment**
+* Final Kaggle submission (Public Score: **0.15142** RMSLE)
+
+### Competition Link:
 [https://www.kaggle.com/c/house-prices-advanced-regression-techniques](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)
 
 ---
 
 ## Dataset Description
-| Dataset | Rows | Description |
+
+The project utilizes the Ames Housing Dataset.
+
+| File | Rows | Description |
 | :--- | :--- | :--- |
-| **Training Set** | 1,460 | Includes home attributes + target `SalePrice` |
-| **Test Set** | 1,459 | Includes features only (`SalePrice` to be predicted) |
+| `train.csv` | 1,460 | Features + Target (`SalePrice`) |
+| `test.csv` | 1,459 | Features only (prediction required) |
+| `data_description.txt` | — | Feature dictionary |
+| `sample_submission.csv` | — | Submission format |
 
-* **Total Features:** 79 structured predictors
-* **Target Variable:** `SalePrice`
-
-### Files Included
-* `train.csv`
-* `test.csv`
-* `data_description.txt`
-* `sample_submission.csv`
+* **Total features:** 79 structured predictors
+* **Target:** `SalePrice` (highly skewed, requires log-transformation)
 
 ---
 
 ## Problem Statement
-House price prediction plays an important role in real estate valuation, mortgage underwriting, and investment analysis.
 
-The dataset contains a diverse set of numeric, ordinal, and categorical variables describing housing conditions, location, materials, and quality.
-The challenge is to build a model capable of handling:
-* High-dimensional structured data
-* Strong non-linear interactions
-* Mixed feature types
-* Skewed target distributions
-* Neighborhood-driven price variability
+Accurately predicting housing prices is crucial for **real estate valuation**, **loan underwriting**, and **investment decisions**.
 
----
-
-## Project Objectives
-The main objectives include:
-* Data cleaning and handling of missing values
-* Domain-specific feature engineering
-* Encoding categorical features
-* Applying log transformation to stabilize `SalePrice`
-* Training and evaluating multiple machine learning models
-* Hyperparameter optimization for XGBoost
-* Explainability using Feature Importance and SHAP
-* Building a deep learning baseline
-* Constructing a stacked ensemble
-* Generating Kaggle-ready predictions
-* **Deploying the model in a Streamlit application**
+The main challenges addressed were:
+* Handling many mixed feature types (numeric, nominal, ordinal).
+* Dealing with skewed numeric distributions and strong outliers.
+* Mitigating **strong correlation + multicollinearity** among features.
+* Resolving structural and non-structural missing values.
+* Modeling non-linear and neighborhood-driven price variation.
 
 ---
 
-## Methodology
+## Data Cleaning & Preprocessing
 
-### 1. Data Understanding
-Initial exploration involved descriptive statistics, outlier detection, distribution analysis, and correlation exploration.
+### ✔ Missing Value Handling (Domain-Aware)
 
-**Key Findings**
-* `SalePrice` was heavily skewed → required log-transformation
-* Many missing values were structural (e.g., no basement)
-* Location-related features strongly influenced pricing
-* Quality and condition variables were ordinal
+Missing values were handled based on the feature's domain context:
 
-### 2. Data Cleaning and Preprocessing
+* **Structural Absences (Categorical):** Filled with **"None"** (e.g., `BsmtQual`, `GarageType`, `PoolQC`, `Fence`) to signify the absence of that feature.
+* **Numeric Structural Absences:** Filled with **0** (e.g., `TotalBsmtSF`, `GarageArea`, `GarageCars`).
+* **Neighborhood-based Imputation:** `LotFrontage` filled with the **median** per neighborhood.
+* **Mode/Median Imputation:** Small-missing categorical features filled with the mode; small-missing numeric features filled with the median.
 
-#### Missing Value Handling
-A domain-aware approach was used:
+### Outlier Handling
 
-| Case | Method | Example Features |
-| :--- | :--- | :--- |
-| **Structural absence** | Filled with “None” or “NF” | `BsmtQual`, `GarageType` |
-| **Numeric absence with structural meaning** | Filled with 0 | `GarageArea`, `TotalBsmtSF` |
-| **Neighborhood-based** | Median per neighborhood | `LotFrontage` |
-| **Misc categorical** | Mode imputation | `KitchenQual`, `MSZoning` |
+Outliers were carefully managed to ensure model stability:
+* **Removed** unrealistic outliers (e.g., very large homes sold unusually cheap).
+* Used **IQR-based trimming** on highly skewed numeric features.
+* **Winsorized** extreme percentiles for stability.
 
-#### Outlier Processing
-* Extreme values capped using percentile thresholds
-* Removed unrealistic combinations of size vs sale price
+### Feature Engineering
 
-### 3. Feature Engineering
-Constructed new domain-driven features to improve predictive power:
+Meaningful, domain-driven features were created to enhance model performance and interpretability:
 
 | Feature | Description |
 | :--- | :--- |
-| **TotalSF** | Total living area |
-| **Total_Bathrooms** | Combined standardized bathroom count |
-| **HouseAge** | House age at time of sale |
-| **RemodAge** | Years since remodeling |
-| **OverallQualArea** | Quality × size interaction |
-| **QualityScore** | Combined structural condition |
-| **TotalPorch** | Sum of all porch areas |
+| `TotalSF` | Total square footage (basement + floors) |
+| `Total_Bathrooms` | Combined full/half baths (above + basement) |
+| `HouseAge` | Years since built |
+| `RemodAge` | Years since remodel |
+| `OverallQualArea` | Quality score (`OverallQual` $\times$ `TotalSF`) |
+| `QualityScore` | Overall quality $\times$ condition |
+| `TotalPorch` | Combined porch areas |
 
-These engineered features improved correlations and boosted model performance.
+### Encoding Strategy
 
-### 4. Encoding Categorical Features
-* Ordinal encoding applied to ordered quality variables
-* One-hot encoding applied to nominal categories
-* Alignment ensured consistent columns for train/test:
+* **Ordinal Encoding:** Applied to ordered quality variables (e.g., `ExterQual`, `KitchenQual`, `BsmtQual`, `FireplaceQu`).
+* **One-Hot Encoding:** Applied to nominal categorical variables (e.g., `Neighborhood`, `MSZoning`, `HouseStyle`, `Exterior1st`). Train/Test alignment was automatically handled to ensure consistent feature sets.
 
-```python
-X, X_test = X.align(X_test, join="left", axis=1, fill_value=0)
-````
-
-### 5\. Target Transformation
-
-To correct skewness:
-
-```python
-y = np.log1p(train["SalePrice"])
-```
-
-Inverse transform performed before submission:
-
-```python
-np.expm1(pred)
-```
-
------
+---
 
 ## Model Development
 
-### Models Implemented
+### Explored Models:
+* Linear Regression
+* Lasso
+* **Ridge Regression** ✔ (Selected Model)
+* ElasticNet
+* Random Forest
+* XGBoost
+* Support Vector Regression
 
-  * Linear Regression (baseline)
-  * Ridge & Lasso Regression
-  * Random Forest
-  * Gradient Boosting
-  * **XGBoost** (primary model)
-  * Deep Neural Network (DNN)
-  * Stacked Ensemble (Ridge + Lasso + XGBoost)
+### Why Ridge Regression?
 
-#### Cross-Validation Results
+**Ridge Regression** was selected as the final model due to its stable, consistent, and generalizable performance. It excels because it:
+* Handles the high level of **multicollinearity** well.
+* Performs smoothly with **80+ encoded features**.
+* Remains highly **interpretable** (unlike complex tree models).
 
-| Model | CV R² |
-| :--- | :--- |
-| Random Forest | 0.8778 |
-| Gradient Boosting | 0.8889 |
-| **XGBoost** | **0.8946** |
-| Stacked Ensemble | 0.8812 |
-| DNN | 0.8342 |
+### Hyperparameter Tuning (GridSearchCV)
 
-### Hyperparameter Optimization (XGBoost)
+The model was tuned using **GridSearchCV** over the following parameters:
+* Polynomial degree: `[1, 2]`
+* Alpha values ($\alpha$, regularization strength): `logspace(0, 6)`
 
-#### Randomized Search
+#### Best Model Parameters:
+* **Degree:** 1
+* **Optimal Alpha ($\alpha$):** $\approx 2.07$
+* **Mean CV RMSE:** $\approx 18,023$
+* **Mean CV R²:** $\approx 0.9127$
 
-Best parameters included:
+---
 
-```python
-{'subsample': 0.6, 'reg_lambda': 10, 'reg_alpha': 0.1,
- 'n_estimators': 800, 'max_depth': 3,
- 'learning_rate': 0.03, 'colsample_bytree': 1.0}
-```
+## 🧪 Model Diagnostics
 
-  * **CV R²:** 0.8965
+### ✔ Validation Curves
+The validation curves demonstrated optimal performance around the selected alpha, illustrating the trade-off between bias and variance. 
 
-#### Grid Search Refinement
+### ✔ Learning Curve
+The learning curve showed **good generalization** with high training and cross-validation scores converging quickly, indicating **no significant high variance or high bias** issues.
 
-```python
-{'colsample_bytree': 0.7,
- 'learning_rate': 0.04,
- 'max_depth': 2,
- 'n_estimators': 1000,
- 'reg_alpha': 0.1,
- 'reg_lambda': 9,
- 'subsample': 0.7}
-```
+### ✔ Error Analysis
+* **Residuals** were centered around zero (unbiased predictions).
+* **Standardized residuals** showed no signs of **heteroscedasticity**.
+* The **Actual vs. Predicted** plot showed a tight clustering around the $45^\circ$ line.
 
-  * **Fine-Tuned CV R²:** **0.8998**
+---
 
-### Final XGBoost Results
+## Model Explainability (SHAP)
 
-  * **Validation R²:** **0.8785**
-  * **Validation RMSE:** **0.1221**
+**SHAP (SHapley Additive exPlanations)** was used to interpret the model's predictions and understand feature contributions. 
 
-**Interpretation**
+### Key Drivers of Price:
+1.  **`OverallQualArea`** (Strongest driver, quality-weighted area)
+2.  **`GrLivArea`** (Above ground living area)
+3.  **`TotalSF`** (Total square footage)
+4.  **`TotalBsmtSF`** (Total basement square footage)
+5.  **`LotArea`**
+6.  **`GarageCars`**
 
-  * Model explains \~88% of price variation
-  * Balanced training/validation curves indicate strong generalization
-  * Residuals centered around zero → unbiased predictions
+The contributions were consistent with real-world real estate behavior: higher values for these features led to an increase in predicted sale price.
 
-### Model Explainability
+---
 
-#### Feature Importance (XGBoost)
+## Final Submission
 
-Top impactful predictors:
+The tuned Ridge model was retrained on the full training dataset and used to generate the final predictions.
 
-  * `OverallQualArea`
-  * `TotalSF`
-  * `QualityScore`
-  * `LotArea`
-  * `GrLivArea`
-  * `GarageYrBlt`
+* **Kaggle Score:** **0.15142** (RMSE)
+* Result: Strong performance and excellent generalization on unseen test data.
 
-#### SHAP Analysis
+---
 
-SHAP revealed:
+## Streamlit Deployment
 
-  * Higher quality, size, and updated condition increase price
-  * Lower values reduce predicted price
-  * Confirms domain-consistent model behavior
+A lightweight, interactive application was built using **Streamlit** for real-world usability.
+* Users can input key home characteristics via a clean UI.
+* The model predicts the sale price instantly.
+* Feature contributions (via SHAP) can optionally be displayed to provide transparency.
+* https://kibosivy-property-prices-predictions-app-mqyip5.streamlit.app/
 
-### Deep Neural Network (DNN)
+---
 
-**Architecture**
+## Technologies Used
 
-  * Dense layers: 256 → 128 → 64 → 1
-  * ReLU activations
-  * BatchNormalization + Dropout
-  * Adam optimizer, MSE loss
-  * Early stopping enabled
+* **Python** 3.13
+* `pandas`, `NumPy`
+* `scikit-learn`
+* `SHAP`
+* `matplotlib`, `seaborn`
+* `Streamlit`
+* `Git & GitHub`
 
-**Performance**
-
-  * R²: 0.8342
-  * RMSE: 0.1426
-  * Deep learning underperformed compared to XGBoost, which is typical for structured tabular data.
-
-### Stacked Ensemble
-
-  * **Base Models:** Ridge, Lasso, XGBoost
-  * **Meta Model:** Linear Regression
-  * **R²:** 0.8812
-  * **RMSE:** 0.1207
-  * Provided stability but did not outperform XGBoost.
-
------
-
-## Final Predictions & Deployment
-
-### Final Kaggle Submission
-
-```python
-y_test_pred = np.expm1(best_xgb.predict(X_test))
-submission = pd.DataFrame({"Id": test_ids, "SalePrice": y_test_pred})
-submission.to_csv("submission.csv", index=False)
-```
-
-### Kaggle Leaderboard Performance
-
-  * **Final Public Score:** 0.13744 RMSE
-  * This validates strong performance and generalization of the tuned XGBoost model on unseen Kaggle test data.
-
-### Streamlit Deployment
-
-A full interactive prediction interface was deployed using Streamlit.
-
-🔗 **Live App Link:**
-[https://kibosivy-property-prices-predictions-app-mqyip5.streamlit.app/](https://kibosivy-property-prices-predictions-app-mqyip5.streamlit.app/)
-
-**Features of the App**
-
-  * Accepts both numeric and categorical inputs
-  * Automatically handles one-hot encoding
-  * Uses the trained XGBoost model
-  * Predicts and displays the final `SalePrice`
-  * Clean, structured UI
-
------
-
-## Technologies & Tools
-
-  * **Python** 3.13
-  * `pandas`, `NumPy`
-  * `scikit-learn`
-  * **XGBoost**
-  * `TensorFlow` / `Keras`
-  * **SHAP**
-  * `Matplotlib`, `Seaborn`
-  * **Streamlit**
-  * `Git` & `GitHub`
-
------
+---
 
 ## Conclusion
 
-This project presents a full, production-ready machine learning pipeline for residential house price prediction. Using strong preprocessing, carefully designed engineered features, and extensive model tuning, the final **XGBoost** model delivered high accuracy, strong generalization, and interpretable insights.
-
-The inclusion of a deep learning benchmark and a stacked ensemble enriched the analysis.
-
-The **Streamlit deployment** demonstrates practical usability, enabling real-time predictions through a user-friendly application.
-
-```
-```
+This project successfully demonstrates a complete and production-ready machine learning pipeline for housing price prediction. Through strong preprocessing, robust feature engineering, Ridge regression tuning, thorough diagnostics, and SHAP explainability, the final model achieved reliable and interpretable performance, which was then deployed via Streamlit.
