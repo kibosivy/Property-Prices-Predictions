@@ -1,14 +1,28 @@
-# House Price Prediction
-
-**Advanced Regression Techniques | Ridge Regression Model | SHAP Explainability | Streamlit Deployment**
+# House Price Prediction - Advanced Regression Techniques
 
 ---
 
 ## Project Overview
 
-This project tackles the classic Kaggle competition **“House Prices: Advanced Regression Techniques”**, using a complete end-to-end machine learning workflow to build a clean, interpretable, and high-performing model for predicting housing sale prices.
+Predicting house prices accurately is a critical task in real estate analytics, helping sellers set reasonable expectations, buyers make informed decisions, and developers assess market value. Housing prices are influenced by a combination of structural characteristics, quality indicators, amenities, and location-driven variables. Because these factors interact in complex ways, a well-designed machine learning model can provide more reliable price estimates than simple heuristics.
 
-The complete workflow includes:
+
+---
+
+## Problem Statement
+
+The dataset contains hundreds of residential properties with over 80 diverse features—including numerical measurements, categorical descriptors, quality ratings, and engineered features.
+
+The main challenges addressed were:
+* Handling many mixed feature types (numeric, nominal, ordinal).
+* Dealing with skewed numeric distributions and strong outliers.
+* Mitigating **strong correlation + multicollinearity** among features.
+* Resolving structural and non-structural missing values.
+* Modeling non-linear and neighborhood-driven price variation.
+
+---
+
+**The complete workflow includes:**
 * Exploratory Data Analysis (EDA)
 * Missing value treatment and outlier handling
 * Domain-driven **feature engineering**
@@ -38,19 +52,6 @@ The project utilizes the Ames Housing Dataset.
 
 * **Total features:** 79 structured predictors
 * **Target:** `SalePrice` (highly skewed, requires log-transformation)
-
----
-
-## Problem Statement
-
-Accurately predicting housing prices is crucial for **real estate valuation**, **loan underwriting**, and **investment decisions**.
-
-The main challenges addressed were:
-* Handling many mixed feature types (numeric, nominal, ordinal).
-* Dealing with skewed numeric distributions and strong outliers.
-* Mitigating **strong correlation + multicollinearity** among features.
-* Resolving structural and non-structural missing values.
-* Modeling non-linear and neighborhood-driven price variation.
 
 ---
 
@@ -572,6 +573,20 @@ A lightweight, interactive application was built using **Streamlit** for real-wo
 
 ---
 
-## Conclusion
+## 🏁Conclusion
 
-This project successfully demonstrates a complete and production-ready machine learning pipeline for housing price prediction. Through strong preprocessing, robust feature engineering, Ridge regression tuning, thorough diagnostics, and SHAP explainability, the final model achieved reliable and interpretable performance, which was then deployed via Streamlit.
+This project delivered a complete end-to-end House Price Prediction workflow—from data cleaning and feature engineering to model training, evaluation, and deployment. After comparing multiple models, Ridge Regression was selected for its stable performance and robustness to multicollinearity.
+
+The model achieved strong validation metrics and was further explained using SHAP to confirm the most influential features. Finally, the solution was deployed using Streamlit, providing an easy-to-use interface where users can input home features and receive instant price predictions.
+
+
+---
+
+## Future works
+* Refine Ridge regularization by exploring a wider alpha range or adaptive regularization to further reduce prediction error.
+* Investigate remaining error patterns using deeper SHAP analysis to identify features causing consistent under/over-estimation.
+* Incorporate neighborhood-level external data (e.g., crime rates, school scores, accessibility) to strengthen price prediction signals.
+* Test alternative linear approaches, such as ElasticNet with tuned L1/L2 balance, to see if sparsity improves model generalization.
+* Enhance Streamlit app usability by grouping features more intuitively and adding optional “advanced inputs” for power users.
+
+---
