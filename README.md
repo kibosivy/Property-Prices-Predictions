@@ -543,8 +543,9 @@ Overall, SHAP confirms that home quality and total living area are the biggest d
 The tuned Ridge model was retrained on the full training dataset and used to generate the final predictions.
 
 * **Kaggle Score:** **0.13820** (RMSE)
-* 
-<img width="975" height="91" alt="image" src="https://github.com/user-attachments/assets/6533c4c2-f1ef-4e3a-a7c0-bf4147d1952b" />
+
+<img width="1033" height="318" alt="image" src="https://github.com/user-attachments/assets/8e660fb3-571c-423e-9dcc-e81e3c61f9f5" />
+
 
 * Result: Strong performance and excellent generalization on unseen test data.
 
